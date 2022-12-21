@@ -1,0 +1,100 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+
+public class Mari_talks_controller : MonoBehaviour
+{
+    private typewriter speech;
+    [SerializeField] private stats_controller stats;
+    private Text white_text;
+    private int counter = 0;
+    private int white_counter = 0;
+    private bool ready = true;
+    private Canvas_controller canvas;
+    //[SerializeField] private typewriter type;
+
+
+    private string[] sentences = {"cd planetoids\nsudo marisander planetoids.exe",
+                                    "create patch -n jack\nenable jack",
+                                    "interact cmd E\nineract enable",
+                                    "weapons\\sword cmd R_mouse\nweapons\\sword enable",
+                                    "cd village\\npcs\nsudo npcs.txt",
+                                    "hearts 3"};
+
+    private string[] white_sentences = {"Welcome to Planet01ds, I'm Marisander, your guide through this journey.", "I will use my knowledge to give you life, weapons, to program your skills",
+                                        "You are Jack, and I've created you as you are the only one able to help me, to help this game",
+                                        "I give you the ability to interact with this broken world: use 'E' key to interact with objects and NPCs",
+                                        "To survive the threats of this first world, I give you a sword: use the right-mouse button to attack",
+                                        "The first task I give you is to look for cues. I know you are confused, so am I", "Please, find the village of this rocky world, talk to the villagers, fulfill their quests, restore their memory, play this game as it was meant to be played", "Please, find the reason behind this mess",
+                                        "I give you three lives, I think it is enough. Be cautious, Jack."};
+    // Start is called before the first frame update
+    void Start()
+    {
+        canvas = transform.parent.GetComponent<Canvas_controller>();
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        if (speech.isReady && speech.finished_talking)
+        {
+            ready = true;
+            white_text.text = white_sentences[white_counter];
+            speech.finished_talking = true;
+        }
+        else if (ready)
+        {
+            ready = false;
+        }
+    }
+
+    public void Next()
+    {
+        if (white_counter == 7) stats.lifeup(6);
+        if (counter < 5)
+        {
+            if (ready)
+            {
+                if ((counter == 0 && white_counter != 1) || (counter == 4 && white_counter != 7))
+                {
+                    white_counter++;
+                    white_text.text = white_sentences[white_counter];
+                }
+                else
+                {
+                    white_counter++;
+                    counter++;
+                    speech.Clean();
+                    white_text.text = " ";
+                    speech.ChangeCounter(counter);
+                    speech.NewSpeech(sentences[counter]);
+                }
+            }
+            else
+            {
+                speech.ShowFast();
+            }
+        }
+        else
+        {
+            canvas.closeCanvas(2);
+            interactable.isInteracting = false;
+            canvas.openCanvas(0);
+            /*gameObject.SetActive(false);
+            player.GetComponent<UnityStandardAssets.Characters.FirstPerson.RigidbodyFirstPersonController>().UI_active = false;
+            Cursor.visible = false;*/
+        }
+    }
+
+    public void StartTalking(int i)
+    {
+        if (i == 0)
+        {
+            speech = transform.GetChild(transform.childCount - 1).GetComponent<typewriter>();
+            white_text = transform.GetChild(transform.childCount - 2).GetComponent<Text>();
+        }
+        speech.ChangeCounter(i);
+        speech.NewSpeech(sentences[i]);
+    }
+}

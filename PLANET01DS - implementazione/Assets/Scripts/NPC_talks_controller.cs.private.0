@@ -1,0 +1,351 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class NPC_talks_controller : MonoBehaviour
+{
+    private typewriter speech;
+    private bool ready = true;
+    private Canvas_controller canvas;
+    [SerializeField] private GameObject NPCquest_0;
+    [SerializeField] private GameObject NPCquest_1;
+    [SerializeField] private GameObject NPCquest_1_brick;
+    [SerializeField] private GameObject NPCquest_2;
+    [SerializeField] private quests_Controller quest;
+    [SerializeField] private stats_controller stats;
+
+    private string[] sentences_0 = new string[15] { "Oh... a foreigner...", "Leave me alone...", 
+                                                        "Still here?", ". . .", "Since the king got lost, this village has become a den of selfish people...", "So focused on themselves... when I lost all of my lives, during the Great Change, nobody tried to help", 
+                                                        "There are two life up, stuck inside two giant crystal. One is next to the quarry, one is next to the volcano.\nI'm too weak to get up and I do not have a sword to shatter the crystal", "Foreigner, you are my last hope... ", 
+                                                        "Oh! You found the life up! You truly are a hero!", "Thank you foreigner, I will spread the good news to the village.\nSomebody has come to help us.", 
+                                                        "Hi Mari. Long time no see…", "How are you? Are you worried? Oh, don’t be!\nI have some words to tell you. Will you listen to me now?", "Since it's impossible to talk to you in person, you forced me to do this. I though 'what does she pay attention to?'\n'This motherfucking game'.", "So why not break it on the release date? I was sure you would have been here trying to patch it. So now please, keep patching", "And enjoy the monologue you have avoided listening to for too long" };
+    
+    private string[] sentences_1 = new string[6] { "I've already seen you...", ". . .", "You... you are the Great Changer! Please stay away! Please spare me!", 
+                                                        "Probably I was wrong... you are not the Great Changer. But I swear, you look so similar", "The Great Changer would have never helped somebody, but I still don't trust you",
+                                                        "Now I know... You came here to fix things, not to destroy. Fix the bridge to the castle, good man! Go to the quarry and talk to the bricklayer!"};
+    
+    private string[] sentences_2 = new string[4] { "Stay away, foreigner.\nThis village is lost.", 
+                                                        "Jake told us you helped him...\nbut I don't care, I don't trust you", 
+                                                        "I still think this village is lost, but now I have hope", "You gave me hope" };
+    
+    private string[] sentences_3 = new string[17] { "I don't know you...", 
+                                                        "Rumors say you helped Jake, that old, grumpy hothead.\nYou know, after the Great Change we couldn't stand each other, this world was filled with hate.", "I forgot the words 'Thank you' even existed.\nBut you restored my memory and gave me hope. I remembered someone I lost, someone I loved.", "Foreigner, will you help me find my lost brother?",
+                                                        "I feel so miserable, I know this was my mission and for so long I forgot.\nMy brother, the bricklayer of the village, got lost before the Great Change, he said he was going to explore some cave...", "He never came back", "My heart is shattered.\nPlease, look for a cave, use your sword to destroy the obstacles you'll find.\nFind my beloved brother!", 
+                                                        "You found him! You found my lost brother!", "Foreigner, I will never thank you enough. I thought I couldn't cry anymore, but my tears of joy say otherwise.", "This village is not lost\nYou can save us, I will tell to the villagers, you can find the lost king!", "Now that my brother is back you could ask him to help you build the bridge to reach the castle! Go to the quarry!",
+                                                        "Let me guess...", "10 minutes after the release! Just 10 minutes and you discovered that this game was compromised, just like your career", "Who told you? Was it Alex? Of course it was him.", ". . .", "10 minutes and you are shattered, you and “your” majestic project, all shattered in tiny little peaces! But I have to admit it, I spent a lot of time preparing you this big surprise", "I hope you and Alex like it" };
+    
+    private string[] sentences_4 = new string[5] { "Jake hates us. He is always alone.", "He doesn't understand that we are all broken.",
+                                                        "Wow, you gifted Jake with a full heart.\nYou could have keep it you know? Why give it to someone else?",
+                                                        "Why give it to someone else?\n. . .", 
+                                                        "You also helped the bricklayer, asking nothing back. . .\nWhy do you want to save us? What to you gain?\n. . . Who are you?"};
+    
+    private string[] sentences_5 = new string[12] { "Help! Please, help me! I got stuck inside this cave, and my leg is broken!\nPlease, it hurts, help me go back to my village!", "My brother? I thought he didn't care about me anymore... I was wrong!", "Please, good man, find the doctor of the village, he is a very tall guy, I need help with my broken leg!",
+                                                        "You saved my life, foreigner, and I want to help you back! I know you want to meet our King. Actually, I'm not sure our Majesty is still in the castle",
+                                                        "But it's worth a shot, let's rebuild the old bridge to the castle!", "Please, I'm still recovering, can you hit those rocks with your sword? We need to turn them into bricks!",
+                                                        "Great job! Now We have to bring them next to the castle. I will teach you something important, come with me. . .",
+                                                        "I’m not gonna let you win so easily this battle.", "We both know that you’ll win in the end, but my goal is not to win the battle", "The battle itself is the goal. I will spread my domain wide enough to make you waste all your time", "while the whole world is playing your broken, creepy videogame", "blaming YOU for their terrible experience." };
+
+    private string[] sentences_6 = new string[8] { "Since the Great Change I lost my job: nobody needs a doctor when life is so static!", 
+                                                        "What? The bricklayer needs me? Of course I want to help! It's the first patient in a long time!", "Oh god... I forgot... I threw away all my gear, I was so furious after the Great Change... Do you think you can help?", 
+                                                        "Thank you, foreigner, I was sure I could rely on you!", "Please, find a portal and go through it.\nYou will have to go to the center of the maze, there you will find my briefcase",
+                                                        "My briefcase! Oh thank you foreigner, now I can be a real doctor again. I can help my friends!", "The bricklayer will be healed in no time, go tell his brother that everything's fixed!",
+                                                        "The bricklayer couldn't stop thanking me, is this happiness again?"};
+
+    private int[] counter = { 0, 0, 0, 0, 0, 0, 0 };
+    private int[] last_sentenceGroup_start = { 0, 0, 0, 0, 0, 0, 0 };
+    private int[] last_sentenceGroup_end = { 1, 2, 0, 0, 1, 2, 0 };
+
+    // Start is called before the first frame update
+    void Start()
+    {
+        canvas = transform.parent.GetComponent<Canvas_controller>();
+        speech = transform.GetChild(transform.childCount - 1).GetComponent<typewriter>();
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        if (speech.isReady && speech.finished_talking)
+        {
+            ready = true;
+            speech.finished_talking = true;
+        }
+        else if (ready)
+        {
+            ready = false;
+        }
+    }
+
+    public void Next()
+    {
+        if (counter[interactable.talkingNPC] < last_sentenceGroup_end[interactable.talkingNPC])
+        {
+            if (ready)
+            {
+                counter[interactable.talkingNPC]++;
+                speech.Clean();
+                speech.ChangeCounter(counter[interactable.talkingNPC]);
+                switch (interactable.talkingNPC)
+                {
+                    case 0:
+                        speech.NewSpeech(sentences_0[counter[interactable.talkingNPC]]);
+                        break;
+                    case 1:
+                        speech.NewSpeech(sentences_1[counter[interactable.talkingNPC]]);
+                        break;
+                    case 2:
+                        speech.NewSpeech(sentences_2[counter[interactable.talkingNPC]]);
+                        break;
+                    case 3:
+                        speech.NewSpeech(sentences_3[counter[interactable.talkingNPC]]);
+                        break;
+                    case 4:
+                        speech.NewSpeech(sentences_4[counter[interactable.talkingNPC]]);
+                        break;
+                    case 5:
+                        speech.NewSpeech(sentences_5[counter[interactable.talkingNPC]]);
+                        break;
+                    case 6:
+                        speech.NewSpeech(sentences_6[counter[interactable.talkingNPC]]);
+                        break;
+                }
+                
+            }
+            else
+            {
+                speech.ShowFast();
+            }
+        }
+        else
+        {
+            if (!ready)
+            {
+                speech.ShowFast();
+            }
+            else
+            {
+                if(interactable.talkingNPC == 0)
+                {
+                    if (counter[0] == 1)
+                    {
+                        quest.enableQM(0);
+                    }
+                    else if (counter[0] == 7)
+                    {
+                        last_sentenceGroup_start[0] = 6;
+                        last_sentenceGroup_end[0] = 7;
+                    }
+                    else if (counter[0] == 9)               //prima missione completata: inizia il glitch e i dialoghi di tutti i personaggi si aggiornano
+                    {
+                        quest.enableRedQM(0);
+                        quest.enableQM(1);
+
+                        NPCquest_0.GetComponent<Animator>().SetBool("glitching", true);
+                        last_sentenceGroup_start[0] = 10;
+                        last_sentenceGroup_end[0] = 14;
+                        last_sentenceGroup_start[1] = 3;
+                        last_sentenceGroup_end[1] = 4;
+                        last_sentenceGroup_start[2] = 1;
+                        last_sentenceGroup_end[2] = 1;
+                        last_sentenceGroup_start[3] = 1;
+                        last_sentenceGroup_end[3] = 3;
+                        last_sentenceGroup_start[4] = 2;
+                        last_sentenceGroup_end[4] = 2;
+                    }
+                }
+                else if(interactable.talkingNPC == 3)
+                {
+                    if(counter[3] == 3)
+                    {
+                        quest.enableQM(1);
+                    }
+                    else if(counter[3] == 6)
+                    {
+                        quest.disableQM(1);
+                        last_sentenceGroup_start[3] = 6;
+                        last_sentenceGroup_end[3] = 6;
+                        quest.enableQM(2);
+                    }
+                    else if(counter[3] == 10)               //seconda missione completata: inizia il glitch e i dialoghi si aggiornano
+                    {
+                        quest.enableRedQM(1);
+                        quest.enableQM(2);
+                        NPCquest_1.GetComponent<Animator>().SetBool("glitching", true);
+                        NPCquest_1_brick.GetComponent<Animator>().SetBool("heal", true);
+                        NPCquest_1_brick.transform.localPosition = new Vector3(44.67f, -6.4f, 43.14f);
+                        last_sentenceGroup_start[1] = 5;
+                        last_sentenceGroup_end[1] = 5;
+                        last_sentenceGroup_start[2] = 2;
+                        last_sentenceGroup_end[2] = 3;
+                        last_sentenceGroup_start[3] = 11;
+                        last_sentenceGroup_end[3] = 16;
+                        last_sentenceGroup_start[4] = 4;
+                        last_sentenceGroup_end[4] = 4;
+                        last_sentenceGroup_start[5] = 3;
+                        last_sentenceGroup_end[5] = 5;
+                        last_sentenceGroup_start[6] = 7;
+                        last_sentenceGroup_end[6] = 7;
+                    }
+                }
+                else if (interactable.talkingNPC == 5)
+                {
+                    if (counter[5] == 2)
+                    {
+                        last_sentenceGroup_start[5] = 2;
+                        last_sentenceGroup_end[5] = 2;
+                    }
+                    else if(counter[5] == 5)
+                    {
+                        last_sentenceGroup_start[5] = 5;
+                        last_sentenceGroup_end[5] = 5;
+                    }
+                }
+                else if(interactable.talkingNPC == 6)
+                {
+                    if(counter[6] == 2)
+                    {
+                        quest.enableQM(3);
+                    }
+                    else if(counter[6] == 4)
+                    {
+                        last_sentenceGroup_start[6] = 5;
+                        last_sentenceGroup_end[6] = 6;
+                    }
+                    else if(counter[6] == 6)
+                    {
+                        last_sentenceGroup_start[6] = 6;
+                        last_sentenceGroup_end[6] = 6;
+                        quest.enableQM(1);
+                        last_sentenceGroup_start[3] = 7;
+                        last_sentenceGroup_end[3] = 10;
+                    }
+                }
+                
+                canvas.closeCanvas(4);
+                canvas.openCanvas(0);
+                interactable.isInteracting = false;
+            }
+        }
+    }
+
+    public void StartTalking(int NPC)
+    {
+        if (interactable.talkingNPC == 0)
+        {
+            if(counter[0] == 0 || counter[0] == 1 || counter[0] == 7 || counter[0] == 9)
+            {
+                quest.disableQM(0);
+            }
+            if (counter[0] == 1)
+            {
+                last_sentenceGroup_start[0] = 2;
+                last_sentenceGroup_end[0] = 7;
+            }
+            if(counter[0] == 7)
+            {
+                stats.lifeDown(2);
+            }
+        }
+        else if(interactable.talkingNPC == 3)
+        {
+            if(counter[3] == 0 || counter[3] == 3 || counter[3] == 6 || counter[3] == 10)
+            {
+                quest.disableQM(1);
+            }
+            if (counter[3] == 3)
+            {
+                last_sentenceGroup_start[3] = 4;
+                last_sentenceGroup_end[3] = 6;
+            }
+            
+        }
+        else if(interactable.talkingNPC == 4)
+        {
+            if(counter[4] == 2)
+            {
+                last_sentenceGroup_start[4] = 3;
+                last_sentenceGroup_end[4] = 3;
+
+            }
+        }
+        else if(interactable.talkingNPC == 5)
+        {
+            if(counter[5] == 0 || counter[5] == 2 || counter[5] == 5)
+            {
+                quest.disableQM(2);
+            }
+            if(counter[5] == 0)
+            {
+                
+                quest.enableQM(3);
+                last_sentenceGroup_start[6] = 1;
+                last_sentenceGroup_end[6] = 2;
+            }
+        }
+        else if(interactable.talkingNPC == 6)
+        {
+            if(counter[6] == 0 || counter[6] == 2 || counter[6] == 4)
+            {
+                quest.disableQM(3);
+            }
+            if(counter[6] == 2)
+            {
+                last_sentenceGroup_start[6] = 3;
+                last_sentenceGroup_end[6] = 4;
+            }
+        }
+
+        counter[NPC] = last_sentenceGroup_start[NPC];
+        speech = transform.GetChild(transform.childCount - 1).GetComponent<typewriter>();
+
+        speech.ChangeCounter(counter[NPC]);
+        switch (NPC)
+        {
+            case 0:
+                speech.NewSpeech(sentences_0[counter[NPC]]);
+                break;
+            case 1:
+                speech.NewSpeech(sentences_1[counter[NPC]]);
+                break;
+            case 2:
+                speech.NewSpeech(sentences_2[counter[NPC]]);
+                break;
+            case 3:
+                speech.NewSpeech(sentences_3[counter[NPC]]);
+                break;
+            case 4:
+                speech.NewSpeech(sentences_4[counter[NPC]]);
+                break;
+            case 5:
+                speech.NewSpeech(sentences_5[counter[NPC]]);
+                break;
+            case 6:
+                speech.NewSpeech(sentences_6[counter[interactable.talkingNPC]]);
+                break;
+        }
+    }
+
+    public void updateCounters()
+    {
+        if (counter[0] == 7 )
+        {
+            quest.enableQM(0);
+            last_sentenceGroup_start[0] = 8;
+            last_sentenceGroup_end[0] = 9;
+        }
+        else if(counter[6] == 4)
+        {
+            quest.enableQM(3);
+            last_sentenceGroup_start[6] = 5;
+            last_sentenceGroup_end[6] = 6;
+        }
+        else if(counter[5] == 5)
+        {
+            quest.enableQM(2);
+            last_sentenceGroup_start[5] = 6;
+            last_sentenceGroup_end[5] = 6;
+        }
+        
+        //mainNPC.GetComponent<Animator>().SetBool("glitching", true);
+    }
+}

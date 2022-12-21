@@ -1,0 +1,148 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class stats_controller : MonoBehaviour
+{
+    [SerializeField] private int initial_life;
+    [System.NonSerialized] public int life = 0;
+    [System.NonSerialized] public int max_life = 8;
+    [System.NonSerialized] public float stamina;
+    [System.NonSerialized] public int heartsPickups = 0;
+    [System.NonSerialized] public int bricks = 0;
+    [System.NonSerialized] public bool UI_active = false;
+    [SerializeField] private general_UI_controller UI;
+    private int i;
+    // Start is called before the first frame update
+    void Start()
+    {
+        lifeup(initial_life);
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        
+    }
+
+    public bool lifeup(int hearts)
+    { 
+        if (life + hearts <= max_life + 1)              //se aggiungendo hearts cuori arrivo fino ad un mezzo cuore più del massimo allora posso prendere il lifeup
+        {
+            if(hearts%2 == 0)                           //se devo aggiungere un numero intero di cuori
+            {
+                if (life%2 == 0)                         //e ho già un numero intero di cuori
+                {
+                    for (i = (int)(life/2) + 1; i<= (int)((life + hearts)/2); i++)
+                    {
+                        UI.addHeart(i, 0);
+                        UI.deleteHeart(i, 1);
+                    }
+                }
+                else
+                {
+                    for (i = (int)(life / 2) + 1; i <= (int)((life + hearts) / 2); i++)
+                    {
+                        UI.addHeart(i, 0);
+                        UI.deleteHeart(i, 1);
+                    }
+                    UI.addHeart((int)((life + hearts) / 2) + 1, 1);
+                    UI.deleteHeart((int)((life + hearts) / 2) + 1, 0);
+                }
+
+            }
+            else
+            {
+                if (life % 2 == 0)                         //e ho già un numero intero di cuori
+                {
+                    for (i = (int)(life / 2) + 1; i <= (int)((life + hearts) / 2); i++)
+                    {
+                        UI.addHeart(i, 0);
+                        UI.deleteHeart(i, 1);
+                    }
+                    UI.addHeart((int)((life + hearts) / 2) + 1, 1);
+                    UI.deleteHeart((int)((life + hearts) / 2) + 1, 0);
+
+                    for (i = (int)(life / 2) + 1; i <= (int)((life + hearts) / 2); i++)
+                    {
+                        UI.addHeart(i, 0);
+                        UI.deleteHeart(i, 1);
+                    }
+                }
+                else
+                {
+                    for (i = (int)(life / 2) + 1; i <= (int)((life + hearts) / 2); i++)
+                    {
+                        UI.addHeart(i, 0);
+                        UI.deleteHeart(i, 1);
+                    }
+                }
+            }
+            
+            life += hearts;
+            if (life > max_life) life = max_life;
+            return true;
+        }
+        return false;
+    }
+
+    public bool lifeDown(int hearts)
+    {
+        if (life - hearts > 0)              //se togliendo hearts cuori arrivo fino ad un mezzo cuore allora posso perdere il cuore senza morire
+        {
+            if (hearts % 2 == 0)                           //se devo togliere un numero intero di cuori
+            {
+                if (life % 2 == 0)                         //e ho già un numero intero di cuori
+                {
+                    for (i = (int)(life / 2) + 1; i >= (int)((life - hearts) / 2) + 1; i--)
+                    {
+                        UI.deleteHeart(i, 0);
+                    }
+                }
+                else
+                {
+                    for (i = (int)(life / 2) + 1; i >= (int)((life - hearts) / 2) + 1; i--)
+                    {
+                        UI.deleteHeart(i, 0);
+                        UI.deleteHeart(i, 1);
+                    }
+                    UI.addHeart((int)((life - hearts) / 2) + 1, 1);
+                    UI.deleteHeart((int)((life - hearts) / 2) + 1, 0);
+                }
+
+            }
+            else
+            {
+                if (life % 2 == 0)                         //e ho un numero intero di cuori
+                {
+                    for (i = (int)(life / 2) + 1; i >= (int)((life - hearts) / 2) + 1; i--)
+                    {
+                        UI.deleteHeart(i, 0);
+                        UI.deleteHeart(i, 1);
+                    }
+                    UI.addHeart((int)((life - hearts) / 2) + 1, 1);
+                    UI.deleteHeart((int)((life - hearts) / 2) + 1, 0);
+
+                    for (i = (int)(life / 2) + 1; i >= (int)((life - hearts) / 2) + 1; i--)
+                    {
+                        UI.deleteHeart(i, 0);
+                        UI.deleteHeart(i, 1);
+                    }
+                }
+                else
+                {
+                    for (i = (int)(life / 2) + 1; i >= (int)((life - hearts) / 2) + 1 + 1; i--)
+                    {
+                        UI.deleteHeart(i, 0);
+                        UI.deleteHeart(i, 1);
+                    }
+                }
+            }
+
+            life -= hearts;
+            return true;
+        }
+        return false;
+    }
+
+}

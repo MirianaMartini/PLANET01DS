@@ -1,0 +1,67 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class shatterable : MonoBehaviour
+{
+    [SerializeField] private int hitsToCrack;
+    public int hitsToShatter;
+    [SerializeField] private int firstShatterPieceIndex;
+    [SerializeField] private int lastShatterPieceIndex;
+    [System.NonSerialized] public int hitNum;
+    private GameObject shatteredObject;
+    private bool cracked = false;
+    private bool shattered = false;
+
+    // Start is called before the first frame update
+    void Start()
+    {
+        shatteredObject = transform.GetChild(1).gameObject;
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        if (hitNum >= hitsToShatter && !shattered)
+        {
+            shatter();
+        }
+        else if (hitNum >= hitsToCrack && !cracked)
+        {
+            crack();
+        }
+    }
+
+    private void shatter()
+    {
+        for(int i = firstShatterPieceIndex; i < lastShatterPieceIndex; i++)
+        {
+            shatteredObject.transform.GetChild(i).gameObject.AddComponent<Rigidbody>();
+            StartCoroutine(Dissolve());
+        }
+        shattered = true;
+    }
+
+    private void crack()
+    {
+        transform.GetChild(0).gameObject.SetActive(false);
+        shatteredObject.SetActive(true);
+        cracked = true;
+    }
+
+    IEnumerator Dissolve()
+    {
+        yield return new WaitForSecondsRealtime(4);
+        for (int i = firstShatterPieceIndex; i < lastShatterPieceIndex; i++) { 
+        
+            Destroy(shatteredObject.transform.GetChild(i).GetComponent<Rigidbody>(), 0f);
+            Destroy(shatteredObject.transform.GetChild(i).GetComponent<MeshCollider>(), 0f);
+        }
+        for (int i = firstShatterPieceIndex; i < lastShatterPieceIndex; i++)
+        {
+
+            Destroy(shatteredObject.transform.GetChild(i).gameObject);
+        }
+        yield return null;
+    }
+}

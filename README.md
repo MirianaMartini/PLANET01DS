@@ -13,7 +13,7 @@ For more info about the game: <a href="https://github.com/MirianaMartini/PLANET0
 
 
 Teaser trailer: 
-<img src="https://i.imgur.com/QlhYaZP.png" style="display:inline; margin-left: 5px; height:20px; width:32px" href="https://youtu.be/sIj5BxSukK0">
+<a href="https://youtu.be/sIj5BxSukK0"><img style="display:inline; margin-left: 5px; height:20px; width:32px" src="https://i.imgur.com/QlhYaZP.png"></a>
 
 <br>
 <em>Creators: <br>
